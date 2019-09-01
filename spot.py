@@ -3,6 +3,8 @@ import sys
 import spotipy
 import spotipy.util as util
 
+INDENT = ' ' * 8
+
 if 'SPOTIFY_USERNAME' not in os.environ:
     print(
         '''
@@ -68,10 +70,11 @@ def curr():
         track = current['item']['name']
         artist = current['item']['artists'][0]['name']
         album = current['item']['album']['name']
+
         track_info = track + '    ' + ' ' * max(0, 5 - len(track)) + artist + '    ' + ' ' * max(0, 6 - len(artist)) + album
-        print('\n' + '        Track' + ' ' * max(0, len(track) - 1) + 'Artist' + ' ' * max(4, len(artist) - 2) + 'Album')
-        print('        ' + '-' * max(5, len(track)) + '    ' + '-' * max(6, len(artist)) + '    ' + '-' * max(5, len(album)))
-        print('        ' + track_info + '\n')
+        print('\n' + INDENT + 'Track' + ' ' * max(4, len(track) - 1) + 'Artist' + ' ' * max(4, len(artist) - 2) + 'Album')
+        print(INDENT + '-' * max(5, len(track)) + '    ' + '-' * max(6, len(artist)) + '    ' + '-' * max(5, len(album)))
+        print(INDENT + track_info + '\n')
     except spotipy.client.SpotifyException as e:
         print(str(e))
 
