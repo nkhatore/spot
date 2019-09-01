@@ -29,7 +29,7 @@ def spot_help():
         spot play pl [playlist_name] - plays first result from search for playlist_name
         spot play al [album_name]    - plays first result from search for album_name
         spot play ar [artist_name]   - plays first result from search for artist_name
-        spot curr                    - prints name of current song
+        spot curr                    - prints info on current song
         spot pause                   - pauses current song
         spot save                    - save current song to library (if unsaved)
         spot n	                     - plays next song in queue
@@ -61,10 +61,17 @@ def resume():
         print(str(e))
 
 def curr():
+    # Implements 'spot curr'
     sp = scope_token('user-read-currently-playing')
     try:
         current = sp.current_user_playing_track()
-        print(current)
+        track = current['item']['name']
+        artist = current['item']['artists'][0]['name']
+        album = current['item']['album']['name']
+        track_info = track + '    ' + ' ' * max(0, 5 - len(track)) + artist + '    ' + ' ' * max(0, 6 - len(artist)) + album
+        print('\n' + '        Track' + ' ' * max(0, len(track) - 1) + 'Artist' + ' ' * max(4, len(artist) - 2) + 'Album')
+        print('        ' + '-' * max(5, len(track)) + '    ' + '-' * max(6, len(artist)) + '    ' + '-' * max(5, len(album)))
+        print('        ' + track_info + '\n')
     except spotipy.client.SpotifyException as e:
         print(str(e))
 
@@ -106,7 +113,6 @@ def play_track(keywords):
     print('track')
     query = ' '.join(keywords)
 
-
 def save():
     sp = scope_token('player-read-private')
     sp2 = scope_token('player-read-collaborative')
@@ -116,6 +122,7 @@ def save():
         print(str(e))
 
 def repeat(context=False):
+    # Implements 'spot r' and 'spot rc'.
     sp = scope_token('user-modify-playback-state')
     try:
         playback_state = sp.current_playback()
@@ -130,6 +137,7 @@ def repeat(context=False):
         print(str(e))
 
 def shuffle():
+    # Implements 'spot s'.
     sp = scope_token('user-modify-playback-state')
     try:
         playback_state = sp.current_playback()
