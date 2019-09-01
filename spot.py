@@ -6,7 +6,7 @@ import spotipy.util as util
 if 'SPOTIFY_USERNAME' not in os.environ:
     print(
         '''
-        Set your Spotify username on the command line like so:
+        Set your Spotify username in ~/.bash_profile like so:
 
         export SPOTIFY_USERNAME='your_username'
         ''')
@@ -29,25 +29,42 @@ def spot_help():
         spot play pl [playlist_name] - plays first result from search for playlist_name
         spot play al [album_name]    - plays first result from search for album_name
         spot play ar [artist_name]   - plays first result from search for artist_name
+        spot curr                    - prints name of current song
         spot pause                   - pauses current song
         spot save                    - save current song to library (if unsaved)
         spot n	                     - plays next song in queue
         spot p	                     - plays previous song in queue
-        spot re	                     - plays replay current song
+        spot r 	                     - turns replay mode on/off on current track
+        spot rc                      - turns replay mode on/off for context (album, playlist, etc.)
+        spot s                       - turns shuffle mode on/off
         ''')
 
 def play(keywords):
     # Handles all spot play commands
     if not keywords:
         resume()
-    # if keywords[1] == 'pl':
-    #     play_pl(keywords[2:])
+    elif keywords[0] == 'pl':
+        play_playlist(keywords[1:])
+    elif keywords[0] == 'al':
+        play_album(keywords[1:])
+    elif keywords[0] == 'ar':
+        play_artist(keywords[1:])
+    else:
+        play_track(keywords)
 
 def resume():
     # Implements 'spot play'.
     sp = scope_token('user-modify-playback-state')
     try:
         sp.start_playback()
+    except spotipy.client.SpotifyException as e:
+        print(str(e))
+
+def curr():
+    sp = scope_token('user-read-currently-playing')
+    try:
+        current = sp.current_user_playing_track()
+        print(current)
     except spotipy.client.SpotifyException as e:
         print(str(e))
 
@@ -75,24 +92,58 @@ def spot_prev():
     except spotipy.client.SpotifyException as e:
         print(str(e))
 
-# scope = 'user-library-read'
-#
-# if len(sys.argv) > 1:
-#     username = sys.argv[1]
-# else:
-#     print("Usage: %s username" % (sys.argv[0],))
-#     sys.exit()
-#
-# token = util.prompt_for_user_token(USERNAME, scope)
-#
-# if token:
-#     sp = spotipy.Spotify(auth=token)
-#     results = sp.current_user_saved_tracks()
-#     for item in results['items']:
-#         track = item['track']
-#         print(track['name'] + ' - ' + track['artists'][0]['name'])
-#     results = sp.search(q='Young Thug', type='artist')
-#     for item in results['artists']['items']:
-#         print(item['name'])
-# else:
-#     print("Can't get token for", USERNAME)
+def play_playlist(keywords):
+    print('pl')
+
+def play_album(keywords):
+    print('al')
+
+def play_artist(keywords):
+    print('al')
+
+def play_track(keywords):
+    print(keywords)
+    print('track')
+    query = ' '.join(keywords)
+
+
+def save():
+    sp = scope_token('player-read-private')
+    sp2 = scope_token('player-read-collaborative')
+    try:
+        sp2.user_playlists()
+    except spotipy.client.SpotifyException as e:
+        print(str(e))
+
+def repeat(context=False):
+    sp = scope_token('user-modify-playback-state')
+    try:
+        playback_state = sp.current_playback()
+        if playback_state['repeat_state'] == 'off':
+            if context:
+                sp.repeat('context')
+            else:
+                sp.repeat('track')
+        else:
+            sp.repeat('off')
+    except spotipy.client.SpotifyException as e:
+        print(str(e))
+
+def shuffle():
+    sp = scope_token('user-modify-playback-state')
+    try:
+        playback_state = sp.current_playback()
+        if playback_state['shuffle_state']:
+            sp.shuffle(False)
+        else:
+            sp.shuffle(True)
+    except spotipy.client.SpotifyException as e:
+        print(str(e))
+
+# def modify_playback(sp_func):
+#     # Helper to
+#     sp = scope_token('user-modify-playback-state')
+#     try:
+#         sp_func()
+#     except spotipy.client.SpotifyException as e:
+#         print(str(e))

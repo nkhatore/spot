@@ -18,9 +18,17 @@ if sys.argv[1] == 'help':
 elif sys.argv[1] == 'play':
     play(sys.argv[2:])
 
+# spot curr
+elif sys.argv[1] == 'curr':
+    curr()
+
 # spot pause
 elif sys.argv[1] == 'pause':
     pause()
+
+# spot save
+elif sys.argv[1] == 'save':
+    save()
 
 # spot n
 elif sys.argv[1] == 'n':
@@ -29,3 +37,15 @@ elif sys.argv[1] == 'n':
 # spot p
 elif sys.argv[1] == 'p':
     spot_prev()
+
+# spot r
+elif sys.argv[1] == 'r':
+    repeat()
+
+# spot rc
+elif sys.argv[1] == 'rc':
+    repeat(context=True)
+
+# spot s
+elif sys.argv[1] == 's':
+    shuffle()
